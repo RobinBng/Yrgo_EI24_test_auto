@@ -11,9 +11,6 @@
 
 #ifdef TESTSUITE
 
-//! @todo Remove this #ifdef in lecture 4 to enable these tests.
-#ifdef LECTURE4
-
 //! @todo Implement tests according to project requirements.
 namespace driver
 {
@@ -56,20 +53,34 @@ TEST(Timer_Atmega328p, Initialization)
     // Case 1 - Verify that only MaxTimerCount (3) timers can be used simultaneously due to 
     //          hardware limitations.
     {
-        //! @todo Test timer initialization:
-            // Create MaxTimerCount timers with different timeouts.
-            // Verify that each timer is initialized.
-            // Create one additional timer.
-            // Verify that the additional timer isn't initialized, since no circuits are available.
+        // Create three timers with arbitrary timeouts.
+        timer::Atmega328p timer0(100U);
+        timer::Atmega328p timer1(250U);
+        timer::Atmega328p timer2(450U);
+
+        // Verify that each timer is initialized.
+        EXPECT_TRUE(timer0.isInitialized() && timer1.isInitialized() && timer2.isInitialized());
+        
+        // Create one additional timer.
+        timer::Atmega328p timer3(25U);
+
+        // Verify that the additional timer isn't initialized, since no circuits are available.
+        EXPECT_FALSE(timer3.isInitialized());
     }
 
     // Case 2 - Verify that a timer cannot have a 0 ms timeout.
     {
         // Create a timer with a 100 ms timeout.
+        timer::Atmega328p timer0(100U);
+
         // Verify that the timer is initialized.
+        EXPECT_TRUE(timer0.isInitialized());
 
         //  Create a timer with a 0 ms timeout.
+        timer::Atmega328p timer1(0U);
+
         // Verify that the timer isn't initialized (0 ms is an invalid timeout).
+        EXPECT_FALSE(timer1.isInitialized());
     }
 }
 
@@ -158,8 +169,5 @@ TEST(Timer_Atmega328p, Restart)
 
 } // namespace
 } // namespace driver
-
-//! @todo Remove this #endif in lecture 4 to enable these tests.
-#endif /** LECTURE4 */
 
 #endif /** TESTSUITE */

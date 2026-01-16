@@ -88,7 +88,10 @@ void invokeCallback(const uint8_t timerIndex) noexcept
 // -----------------------------------------------------------------------------
 Atmega328p::Atmega328p(const uint32_t timeout_ms, void (*callback)(), 
                        const bool startTimer) noexcept
-    : myHw{Hardware::reserve()}
+	
+	// Is the timout greater than zero? 
+	// If so, try to reserve a timer circuit, else set the timer to uninitialized
+    : myHw{(timeout_ms > 0U) ? Hardware::reserve() : nullptr}
 	, myMaxCount{maxCount(timeout_ms)}
 	, myEnabled{false}
 {
@@ -101,6 +104,9 @@ Atmega328p::Atmega328p(const uint32_t timeout_ms, void (*callback)(),
 // -----------------------------------------------------------------------------
 Atmega328p::~Atmega328p() noexcept 
 { 
+	// Skip clean if there is nothyin to cleanup, i.e. myHw is null.
+
+	if(!myHw){ return; };
 	removeCallback();
 	myTimers[myHw->index] = nullptr;
 	Hardware::release(myHw); 
