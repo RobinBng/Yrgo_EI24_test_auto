@@ -91,17 +91,35 @@ TEST(Timer_Atmega328p, Initialization)
  */
 TEST(Timer_Atmega328p, EnableDisable)
 {
-    //! @todo Test timer enablement.
-        // Create a timer with a timeout.
-        // Verify timer is not enabled initially (unless auto-started via the constructor).
-        // Start the timer.
-        // Verify that the timer is enabled.
-        // Stop the timer.
-        // Verify that the timer is disabled.
-        // Toggle the timer.
-        // Verify that the timer is enabled.
-        // Toggle the timer once again.
-        // Verify that the timer is disabled.
+    // Create a timer with a timeout.
+    timer::Atmega328p timer0(100U);
+    
+    // Verify timer is not enabled initially (unless auto-started via the constructor).
+    EXPECT_FALSE(timer0.isEnabled());
+
+    // Start the timer.
+    timer0.start();
+
+    // Verify that the timer is enabled.
+    EXPECT_TRUE(timer0.isEnabled());
+
+    // Stop the timer.
+    timer0.stop();
+
+    // Verify that the timer is disabled.
+    EXPECT_FALSE(timer0.isEnabled());
+
+    // Toggle the timer.
+    timer0.toggle();
+
+    // Verify that the timer is enabled.
+    EXPECT_TRUE(timer0.isEnabled());
+
+    // Toggle the timer once again.
+    timer0.toggle();
+
+    // Verify that the timer is disabled.
+    EXPECT_FALSE(timer0.isEnabled());
 
     //! @note Once the above is working:
     //!       Feel free to try all three timers. When enabling/disabling, feel free to check both
@@ -119,13 +137,26 @@ TEST(Timer_Atmega328p, EnableDisable)
  */
 TEST(Timer_Atmega328p, Timeout)
 {
-    //! @todo Test timer timeout:
-        // Create a timer with an initial timeout of 100 ms.
-        // Verify timeout_ms() returns the correct value.
-        // Change the timeout to 200 ms using setTimeout_ms().
-        // Verify the new timeout is returned by timeout_ms().
-        // Change the timeout to 0 ms using setTimeout_ms().
-        // Verify that the timeout is unchanged (0 ms is an invalid timeout).
+    // Create a timer with an initial timeout of 100 ms.
+    constexpr std::uint32_t initialTimeout{100U};
+    timer::Atmega328p timer0(initialTimeout);
+    
+    // Verify timeout_ms() returns the correct value.
+    EXPECT_EQ(initialTimeout, timer0.timeout_ms());
+
+    // Change the timeout to 200 ms using setTimeout_ms().
+    constexpr std::uint32_t changedTimeout{200U};
+    timer0.setTimeout_ms(changedTimeout);
+
+    // Verify the new timeout is returned by timeout_ms().
+    EXPECT_EQ(changedTimeout, timer0.timeout_ms());
+
+    // Change the timeout to 0 ms using setTimeout_ms().
+    constexpr std::uint32_t invalidTimeout{0U};
+    timer0.setTimeout_ms(invalidTimeout);
+
+    // Verify that the timeout is unchanged (0 ms is an invalid timeout).
+    EXPECT_EQ(changedTimeout, timer0.timeout_ms());
 }
 
 /**
