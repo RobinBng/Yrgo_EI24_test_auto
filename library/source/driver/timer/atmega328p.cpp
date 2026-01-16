@@ -104,8 +104,7 @@ Atmega328p::Atmega328p(const uint32_t timeout_ms, void (*callback)(),
 // -----------------------------------------------------------------------------
 Atmega328p::~Atmega328p() noexcept 
 { 
-	// Skip clean if there is nothyin to cleanup, i.e. myHw is null.
-
+	// Skip clean if there is nothing to cleanup, i.e. myHw is null.
 	if(!myHw){ return; };
 	removeCallback();
 	myTimers[myHw->index] = nullptr;
@@ -134,7 +133,7 @@ uint32_t Atmega328p::timeout_ms() const noexcept
 void Atmega328p::setTimeout_ms(const uint32_t timeout_ms) noexcept
 {
     if (0U == timeout_ms) { stop(); }
-    myMaxCount = maxCount(timeout_ms);
+    else{ myMaxCount = maxCount(timeout_ms); }
 }
 
 // -----------------------------------------------------------------------------
