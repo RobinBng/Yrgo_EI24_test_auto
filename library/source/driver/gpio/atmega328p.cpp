@@ -137,6 +137,9 @@ Atmega328p::Atmega328p(const uint8_t pin, const Direction direction, void (*call
 // -----------------------------------------------------------------------------
 Atmega328p::~Atmega328p() noexcept 
 {   
+    // Do not perform cleanup if the instance is null (no resources have been allocated).
+    if (!isInitialized()) { return; }
+
     // Free resources used for the GPIO before deletion.
     enableInterrupt(false);
     utils::clear(myHw->ddrx, myPin);
