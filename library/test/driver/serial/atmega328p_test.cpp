@@ -14,9 +14,6 @@
 
 #ifdef TESTSUITE
 
-//! @todo Remove this #ifdef in lecture 3 to enable these tests.
-#ifdef LECTURE3
-
 //! @todo Implement tests according to project requirements.
 namespace driver
 {
@@ -73,17 +70,17 @@ void simulateDataReg(const bool& stop) noexcept
 // -----------------------------------------------------------------------------
 void printThread(serial::Interface& serial, const std::string& msg, bool& stop) noexcept
 {
-    //! @todo Implement this function!
 
-    // Transmit the entire string.
+    // Transmit the entire string. Convert to a C-string (const char*)
+    serial.printf(msg.c_str());
 
     // Set the stop flag to true to signal that transmission is complete.
+    stop = true;
 }
 
 // -----------------------------------------------------------------------------
 void readDataRegThread(const std::string& msg, const bool& stop) noexcept
 {
-    //! @todo Implement this function!
 
     // Iterate through each character in the message.
     for (const auto& c : msg)
@@ -93,13 +90,13 @@ void readDataRegThread(const std::string& msg, const bool& stop) noexcept
         while (utils::read(UCSR0A, UDRE0) && !stop) { delay_us(TransmissionDelay_us); }
 
         // If stop flag is set, break out of the loop.
+            if(stop){break;}
 
         // Read the character from UDR0 and verify it matches the expected character.
-        
-        // Set UDRE0 to signal that the data has been read and the register is empty.
+            EXPECT_EQ(UDR0, c);
 
-        //! @todo Remove this line once the character 'c' is checked.
-        (void) (c);
+        // Set UDRE0 to signal that the data has been read and the register is empty.
+        utils::set(UCSR0A, UDRE0);
     }
 }
 
@@ -148,7 +145,5 @@ TEST(Serial_Atmega328p, Transmit)
 } // namespace
 } // namespace driver.
 
-//! @todo Remove this #endif in lecture 3 to enable these tests.
-#endif /** LECTURE3 */
 
 #endif /** TESTSUITE */
