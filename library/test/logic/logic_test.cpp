@@ -264,7 +264,7 @@ TEST(Logic, TempHandling)
 {
     // Create logic implementation and run the system.
     
-    // Expect the temperature timer to be disabled at the start.
+    // Expect the temperature timer to be enabled at the start.
 
     // Set the temperature to 25 degrees Celsius.
 
