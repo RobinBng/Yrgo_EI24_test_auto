@@ -60,9 +60,7 @@ public:
     bool hasTimedOut() const noexcept override {return myTimedout;}
 
     /**
-     * @brief Set the timer state
-     *
-     * @return True if the timer has timed out, false otherwise.
+     * @brief Force the timer to timeout
      */
     void setTimedOut(bool enable) noexcept 
     {
