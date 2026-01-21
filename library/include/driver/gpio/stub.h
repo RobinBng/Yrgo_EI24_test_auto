@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include "driver/gpio/interface.h"
 
-
 namespace driver
 {
 namespace gpio
@@ -19,7 +18,6 @@ namespace gpio
 class Stub final : public Interface
 {
 public:
-
     /** 
      * @brief Constructor.
      */
@@ -28,7 +26,6 @@ public:
     , myInitialized{true}
     , myInterruptEnabled{false}
     {}
-
 
     /** 
      * @brief Destructor.
@@ -44,7 +41,6 @@ public:
      * @return True if the device is initialized, false otherwise.
      */
     bool isInitialized() const noexcept override {return myInitialized;}
-
 
     /**
      * @brief Get the data direction of the GPIO.
@@ -106,8 +102,7 @@ public:
         if (myInitialized) { myInterruptEnabled = enable; }
     }
 
-    
-     /**
+    /**
      * @brief Set GPIO initialization state.
      * 
      *        If the GPIO is set to uninitialized, the enablement state and the interrupt state
@@ -127,7 +122,6 @@ public:
         }
     }
 
-
     /**
      * @brief Check whether interrupts are enabled for the GPIO.
      * 
@@ -141,18 +135,15 @@ public:
     Stub& operator=(const Stub&) = delete; // No copy assignment.
     Stub& operator=(Stub&&)      = delete; // No move assignment.
 
-
-
 private:
     /** GPIO enablement (true = high, false = low). */
     bool myEnabled;
 
-    /** Initialixation state ( true = initialized). */
+    /** initialization state ( true = initialized). */
     bool myInitialized;
 
     /** GPIO interrupt enablement ( true = interrupts are enabled). */
     bool myInterruptEnabled;
-
 };
 } // namespace gpio
 } // namespace driver
