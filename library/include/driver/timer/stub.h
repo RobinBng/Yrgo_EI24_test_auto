@@ -16,7 +16,7 @@ namespace timer
  * 
  *        This class is non-copyable and non-movable
  */
-class Stub final : Interface
+class Stub final : public Interface
 {
 public:
     /**
