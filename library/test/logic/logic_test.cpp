@@ -222,75 +222,109 @@ TEST(Logic, ToggleHandling)
     // Case 1 - Press the temperature button, simulate button event.
     // Expect the toggle timer to not be enabled, since the wrong button was pressed.
     {
+        // Press the button.
         mock.tempButton.write(true);
+
+        // Simulate button event.
         logic.handleButtonEvent();
+
+        // Release the button.
         mock.tempButton.write(false);
 
+        // Verify that debounce timer was activated and then deactivated after logic handles it with PCI/ISR
         EXPECT_TRUE(mock.debounceTimer.isEnabled());
         mock.debounceTimer.setTimedOut(true);
         logic.handleDebounceTimerTimeout();
         EXPECT_FALSE(mock.debounceTimer.isEnabled());
 
+        // Verify that the toggleTimer wasn't enabled with the incorrect button.
         EXPECT_FALSE(mock.toggleTimer.isEnabled());
     }
 
     // Case 2 - Press the toggle button, simulate button event.
     // Expect the toggle timer to be enabled.
     {
+        // Press the button.
         mock.toggleButton.write(true);
+
+        // Simulate button event.
         logic.handleButtonEvent();
+
+        // Release the button.
         mock.toggleButton.write(false);
         
+        // Verify that debounce timer was activated and then deactivated after logic handles it with PCI/ISR
         EXPECT_TRUE(mock.debounceTimer.isEnabled());
         mock.debounceTimer.setTimedOut(true);
         logic.handleDebounceTimerTimeout();
         EXPECT_FALSE(mock.debounceTimer.isEnabled());
 
+        // Verify that the toggleTimer was enabled with the correct button.
         EXPECT_TRUE(mock.toggleTimer.isEnabled());
     }
 
     // Case 3 - Simulate toggle timer timeout, expect the LED to be enabled.
     {
+        // Verify that the led is not yet enabled.
         EXPECT_FALSE(mock.led.read());
+
+        // Simulate the toggleTimer timeout
         mock.toggleTimer.setTimedOut(true);
+
+        // Simulate the ISR Callback
         logic.handleToggleTimerTimeout();
+
+        // Simulate that the timer has been reset after the previous timeout
         mock.toggleTimer.setTimedOut(false);
+
+        // Verify that the LED is enabled
         EXPECT_TRUE(mock.led.read());
     }
 
     // Case 4 - Simulate that the toggle timer elapses again, expect the LED to be disabled.
     {
+        // Simulate another timeout
         mock.toggleTimer.setTimedOut(true);
         logic.handleToggleTimerTimeout();
         mock.toggleTimer.setTimedOut(false);
+
+        // Verify that the LED is disabled
         EXPECT_FALSE(mock.led.read());
     }
 
     // Case 5 - Simulate that the toggle timer elapses once more, expect the LED to be enabled.
     {
+        // Simulate another timeout
         mock.toggleTimer.setTimedOut(true);
         logic.handleToggleTimerTimeout();
         mock.toggleTimer.setTimedOut(false);
+
+        // Verify that the LED is enabled
         EXPECT_TRUE(mock.led.read());       
     }
 
     // Case 6 - Press the toggle button once more, simulate button event.
     // Expect the toggle timer and LED to be disabled.
     {
+        // Simulate button press.
         mock.toggleButton.write(true);
         logic.handleButtonEvent();
         mock.toggleButton.write(false);
         logic.handleDebounceTimerTimeout();
 
+        // Verify that the timer and led are disabled
         EXPECT_FALSE(mock.toggleTimer.isEnabled());
         EXPECT_FALSE(mock.led.read());
     }
 
     // Case 7 - Simulate temperature timer timeout, expect the LED to be unaffected.
     {
+        // Simulate the timeout and the PCI/ISR Function callback
         mock.tempTimer.setTimedOut(true);
         logic.handleTempTimerTimeout();
+        // Verify that led does not change.
         EXPECT_FALSE(mock.led.read());
+        // Simulate the timer reseting.
         mock.tempTimer.setTimedOut(false);
     }
 
