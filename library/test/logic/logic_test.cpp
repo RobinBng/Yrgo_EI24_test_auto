@@ -345,26 +345,79 @@ TEST(Logic, ToggleHandling)
 TEST(Logic, TempHandling)
 {
     // Create logic implementation and run the system.
-    
+    Mock mock{};
+    logic::Interface& logic{mock.createLogic()};
+    mock.runSystem();
+
+    // Use the logic implementation to access the temperature printout count (only accesible for testing).
+    uint16_t printoutCounts{mock.logicImpl->tempPrintoutCount()};
+
     // Expect the temperature timer to be enabled at the start.
+    EXPECT_TRUE(mock.tempTimer.isEnabled());
 
     // Set the temperature to 25 degrees Celsius.
+    mock.tempSensor.setTemperature(25);
+    EXPECT_EQ(mock.tempSensor.read(), 25);
 
     // Case 1 - Press the toggle button, simulate button event.
     // Expect the temperature to not be printed, since the wrong button was pressed.
     {
-        //! @note Don't forget to simulate the debounce timer timeout after the button event.
+        // Print the counter to verify and expect 0
+        mock.serial.printf("Printout count: %u\n", printoutCounts);
+        EXPECT_EQ(printoutCounts, 0);
+
+        // Simulate button press and ISR
+        mock.toggleButton.write(true);
+        logic.handleButtonEvent();
+        mock.toggleButton.write(false);
+
+        // Simulate debounce timeout ISR
+        mock.debounceTimer.setTimedOut(true);
+        logic.handleDebounceTimerTimeout();
+        mock.debounceTimer.setTimedOut(false);
+
+        // update, print and verify count == 0.
+        printoutCounts = mock.logicImpl->tempPrintoutCount();
+        mock.serial.printf("Printout count: %u\n", printoutCounts);
+        EXPECT_EQ(printoutCounts, 0);
     }
 
     // Case 2 - Press the temperature button, simulate button event.
     // Expect the temperature to be printed once.
     {
-        //! @note Don't forget to simulate the debounce timer timeout after the button event.
+        // Press Correct button
+        mock.tempButton.write(true);
+        logic.handleButtonEvent();
+        mock.tempButton.write(false);
+
+        // Simulate debounce timeout ISR
+        mock.debounceTimer.setTimedOut(true);
+        logic.handleDebounceTimerTimeout();
+        mock.debounceTimer.setTimedOut(false);
+
+        // update, print and verify count == 1.
+        printoutCounts = mock.logicImpl->tempPrintoutCount();
+        mock.serial.printf("Printout count: %u\n", printoutCounts);
+        EXPECT_EQ(printoutCounts, 1);
     }
 
     // Case 3 - Simulate temperature timer timeout.
     // Expect the temperature to be printed once more.
     {
+         // Press Correct button
+        mock.tempButton.write(true);
+        logic.handleButtonEvent();
+        mock.tempButton.write(false);
+
+        // Simulate debounce timeout ISR
+        mock.debounceTimer.setTimedOut(true);
+        logic.handleDebounceTimerTimeout();
+        mock.debounceTimer.setTimedOut(false);
+
+        // update, print and verify count == 2.
+        printoutCounts = mock.logicImpl->tempPrintoutCount();
+        mock.serial.printf("Printout count: %u\n", printoutCounts);
+        EXPECT_EQ(printoutCounts, 2);       
     }
 }
 
