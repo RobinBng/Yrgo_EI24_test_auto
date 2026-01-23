@@ -432,19 +432,34 @@ TEST(Logic, Eeprom)
     // This simulates the timer being disabled before the last poweroff.
     {    
         // Create logic implementation and run the system.
-
+        Mock mock{};
+        logic::Interface& logic{mock.createLogic()};
+        mock.runSystem();
+        
         // Verify that the toggle timer is disabled after initialization.
+        EXPECT_FALSE(mock.toggleTimer.isEnabled());  
+        (void) (logic);
     }
 
     // Case 2 - Verify that the toggle timer is enabled at startup if its EEPROM bit is set.
     // This simulates the timer being enabled before the last poweroff.
     {    
+        // Create an address and byte for the eeprom.write function 
+        const uint16_t toggleAddr{logic::Stub::toggleStateAddr()};
+        constexpr uint8_t enableByte{1U};
+
         // Mark the toggle timer to have been enabled before poweroff by setting the
         // associated bit in EEPROM before creating the logic implementation.
-        
+        Mock mock{};
+        mock.eeprom.write(toggleAddr, enableByte);
+
         // Create logic implementation and run the system.
+        logic::Interface& logic{mock.createLogic()};
+        mock.runSystem();
 
         // Verify that the toggle timer was enabled during initialization.
+        EXPECT_TRUE(mock.toggleTimer.isEnabled());
+        (void) (logic);
     }
 }
 } // namespace
