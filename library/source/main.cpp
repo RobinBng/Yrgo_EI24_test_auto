@@ -98,9 +98,9 @@ int main()
 {
     // Set pin numbers.
     constexpr uint8_t tempSensorPin{2U};
-    constexpr uint8_t ledPin{8U};
-    constexpr uint8_t toggleButtonPin{12U};
-    constexpr uint8_t tempButtonPin{13U};
+    constexpr uint8_t ledPin{9U};
+    constexpr uint8_t toggleButtonPin{4U};
+    constexpr uint8_t tempButtonPin{7U};
 
     // Set timeouts.
     constexpr uint32_t debounceTimerTimeout{300U};
@@ -141,7 +141,7 @@ int main()
     {
         serial.printf("Temperature prediction training succeeded!\n");
     }
-    else { serial.printf("Temperature prediction training failed!\n"; )}
+    else { serial.printf("Temperature prediction training failed!\n"); }
 
     // Initialize the smart temperature sensor.
     tempsensor::Smart tempSensor{tempSensorPin, adc, linReg};
