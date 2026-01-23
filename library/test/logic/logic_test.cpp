@@ -446,7 +446,8 @@ TEST(Logic, Eeprom)
     {    
         // Create an address and byte for the eeprom.write function 
         const uint16_t toggleAddr{logic::Stub::toggleStateAddr()};
-        constexpr uint8_t enableByte{1U};
+        // Create a data byte needed for setting the togglestate in eeprom
+        constexpr bool enableByte{true};
 
         // Mark the toggle timer to have been enabled before poweroff by setting the
         // associated bit in EEPROM before creating the logic implementation.
