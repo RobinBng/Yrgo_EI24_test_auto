@@ -110,7 +110,7 @@ void Logic::run(const bool& stop) noexcept
         myWatchdog.reset(); 
 
         // Read serial port, execute received commands.
-        readSerialPort;
+        readSerialPort();
     }
 }
 
