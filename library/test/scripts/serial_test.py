@@ -19,8 +19,10 @@ LOG_FILE = os.path.join(os.path.dirname(__file__), "serial_test_log.txt")
 
 # Map simple names to ANSI codes
 COLOR_CODES = {
-    "red": "\033[31m",
-    "green": "\033[32m",
+    "red": "\033[31m",      # fail
+    "green": "\033[32m",    # pass
+    "blue": "\033[34m",     # sent
+    "cyan": "\033[36m",     # received
     "": "",  # Default, no color
 }
 
@@ -40,7 +42,7 @@ def log(msg: str, color: str = "") -> None:
 """Serial Helper"""
 def send_command(uart: IUart, cmd: str) -> list[str]:
     """Send a command and collect all immediate responses."""
-    log(f"> Sending command: {cmd}")
+    log(f"> Sending command: {cmd}",color="blue")
     uart.write(cmd)
     responses = []
     timeout = 2.0
@@ -50,7 +52,7 @@ def send_command(uart: IUart, cmd: str) -> list[str]:
         if line is None:
             time.sleep(0.05)
             continue
-        log(f"< Received: {line}")
+        log(f"< Received: {line}",color="cyan")
         responses.append(line)
     return responses
 
@@ -59,15 +61,21 @@ def send_command(uart: IUart, cmd: str) -> list[str]:
 # ---------------------
 def test_toggle(uart: IUart) -> bool:
     """Test toggle LED functionality and serial messages."""
+
+    # Ensure toggle is OFF before test
+    responses = send_command(uart, "s")
+    if any("enabled!" in r for r in responses):
+        send_command(uart, "t")  # disable
+
     try:
         # First toggle
         responses = send_command(uart, "t")
-        if not any("Toggle timer enabled!" in r for r in responses):
+        if not any("enabled!" in r for r in responses):
             raise RuntimeError("First toggle failed")
 
         # Second toggle
         responses = send_command(uart, "t")
-        if not any("Toggle timer disabled!" in r for r in responses):
+        if not any("disabled!" in r for r in responses):
             raise RuntimeError("Second toggle failed")
 
         log("Toggle test passed", color="green")
@@ -90,17 +98,34 @@ def test_temperature(uart: IUart) -> bool:
 
 def test_eeprom(uart: IUart) -> bool:
     """Test EEPROM persistence (toggle state across resets)."""
+    # Ensure toggle is OFF before test
+    responses = send_command(uart, "s")
+    if any("enabled!" in r for r in responses):
+        send_command(uart, "t")  # disable
+
     try:
         # Enable toggle
-        send_command(uart, "t")
-        # Simulate reset (stub: just clear responses, real: toggle DTR)
-        uart.close()
-        time.sleep(1)
-        uart.__init__()  # Re-init for stub, real driver would reopen
-        # Check toggle status
+        responses = send_command(uart, "t")
+        if not any("enabled!" in r for r in responses):
+            raise RuntimeError("First toggle command failed")
+        # Reset the hardware
+        uart.reset()
+        # Check status
         responses = send_command(uart, "s")
-        if not any("active" in r for r in responses):
-            raise RuntimeError("EEPROM toggle not persisted")
+        if not any("enabled!" in r for r in responses):
+            raise RuntimeError("First EEPROM toggle not persisted")
+        
+        # Disable toggle
+        responses = send_command(uart, "t")
+        if not any("disabled!" in r for r in responses):
+            raise RuntimeError("Second toggle command failed")
+        # Reset the hardware
+        uart.reset()
+        # Check status
+        responses = send_command(uart, "s")
+        if not any("disabled!" in r for r in responses):
+            raise RuntimeError("Second EEPROM toggle not persisted")
+
         log("EEPROM test passed", color="green")
         return True
     except Exception as e:
@@ -112,7 +137,7 @@ def test_eeprom(uart: IUart) -> bool:
 # ---------------------
 if __name__ == "__main__":
     # Automatically choose stub for non-Windows
-    #use_stub = platform.system() != "Windows"
+    use_stub = platform.system() != "Windows"
     use_stub = True    # Uncheck this comment to use stub on windows
     uart = factory.create(stub=use_stub)
 
