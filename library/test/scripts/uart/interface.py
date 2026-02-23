@@ -19,4 +19,4 @@ class IUart(ABC):
 
     @abstractmethod
     def reset(self) -> None:
-        """Reset the Uart Connection"""
+        """Reset the Uart Connection"""   

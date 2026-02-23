@@ -65,7 +65,6 @@ class UartDriver(IUart):
 
     def reset(self) -> None:
         """Toggle DTR to trigger hardware reset (DTR is wired to RESET on Arduino Uno)."""
-        print("Resetting the hardware") 
         self._ser.dtr = False
         time.sleep(0.1)
         self._ser.dtr = True

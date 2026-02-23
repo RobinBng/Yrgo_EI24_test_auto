@@ -26,7 +26,7 @@ COLOR_CODES = {
     "": "",  # Default, no color
 }
 
-"""Logging helper"""
+# Logging helper
 def log(msg: str, color: str = "") -> None:
     """Log message with timestamp to console and file, with optional color."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -36,10 +36,10 @@ def log(msg: str, color: str = "") -> None:
     ansi_color = COLOR_CODES.get(color.lower(), "")
     print(f"{ansi_color}{line}\033[0m")  # Reset color after line
 
-    with open(LOG_FILE, "a") as f:
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
-"""Serial Helper"""
+# Serial Helper
 def send_command(uart: IUart, cmd: str) -> list[str]:
     """Send a command and collect all immediate responses."""
     log(f"> Sending command: {cmd}",color="blue")
@@ -80,7 +80,7 @@ def test_toggle(uart: IUart) -> bool:
 
         log("Toggle test passed", color="green")
         return True
-    except Exception as e:
+    except RuntimeError as e:
         log(f"Toggle test failed: {e}", color="red")
         return False
 
@@ -92,7 +92,7 @@ def test_temperature(uart: IUart) -> bool:
             raise RuntimeError("Temperature not returned")
         log("Temperature test passed", color="green")
         return True
-    except Exception as e:
+    except RuntimeError as e:
         log(f"Temperature test failed: {e}", color="red")
         return False
 
@@ -109,17 +109,19 @@ def test_eeprom(uart: IUart) -> bool:
         if not any("enabled!" in r for r in responses):
             raise RuntimeError("First toggle command failed")
         # Reset the hardware
+        log("Resetting the hardware")
         uart.reset()
         # Check status
         responses = send_command(uart, "s")
         if not any("enabled!" in r for r in responses):
             raise RuntimeError("First EEPROM toggle not persisted")
-        
+
         # Disable toggle
         responses = send_command(uart, "t")
         if not any("disabled!" in r for r in responses):
             raise RuntimeError("Second toggle command failed")
         # Reset the hardware
+        log("Resetting the hardware")
         uart.reset()
         # Check status
         responses = send_command(uart, "s")
@@ -128,7 +130,7 @@ def test_eeprom(uart: IUart) -> bool:
 
         log("EEPROM test passed", color="green")
         return True
-    except Exception as e:
+    except RuntimeError as e:
         log(f"EEPROM test failed: {e}", color="red")
         return False
 
@@ -138,7 +140,7 @@ def test_eeprom(uart: IUart) -> bool:
 if __name__ == "__main__":
     # Automatically choose stub for non-Windows
     use_stub = platform.system() != "Windows"
-    use_stub = True    # Uncheck this comment to use stub on windows
+    # use_stub = True    # Uncheck this comment to use stub on windows
     uart = factory.create(stub=use_stub)
 
     results = {}

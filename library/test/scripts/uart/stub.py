@@ -1,8 +1,9 @@
 """Stub implementation for UART communication on Linux/Mac."""
 
 from typing import List
-from .interface import IUart
 import time
+from .interface import IUart
+
 
 class UartStub(IUart):
     """UART stub simulating serial communication."""
@@ -36,10 +37,18 @@ class UartStub(IUart):
         # Generate fake response based on command
         if cmd == "t":  # Toggle LED
             self._toggle_state = not self._toggle_state
-            msg = "Toggle timer enabled!" if self._toggle_state else "Toggle timer disabled!"
+            msg = (
+                "Toggle timer enabled!"
+                if self._toggle_state
+                else "Toggle timer disabled!"
+            )
             self._responses.append(msg)
         elif cmd == "s":  # Status
-            msg = "The toggle timer is enabled!" if self._toggle_state else "The toggle timer is disabled!"
+            msg = (
+                "The toggle timer is enabled!"
+                if self._toggle_state
+                else "The toggle timer is disabled!"
+            )
             self._responses.append(msg)
         elif cmd == "r":  # Read temperature
             self._responses.append(f"Temperature: {self._temperature:.1f} C")
@@ -60,8 +69,7 @@ class UartStub(IUart):
 
     def reset(self) -> None:
         """Simulate a reset"""    
-        print("Resetting the hardware")
+        toggle_state = self._toggle_state # Save eeprom state
         self.close()
-        self.__init__
+        self._toggle_state = toggle_state # Restore eeprom state
         time.sleep(2.0) # Boot time
-
