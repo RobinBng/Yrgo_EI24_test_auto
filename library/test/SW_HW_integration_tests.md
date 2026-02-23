@@ -6,7 +6,7 @@
 * Target hardware: Arduino/ATmega328P with connected buttons, LED, and temperature sensor.
 * Microchip Studio installed and configured.
 * Serial terminal available
-*(Example: PuTTY from CMD prompt: `putty.exe -serial <com-port> -sercfg 9600,8,n,1,N`*
+*(Example: PuTTY from CMD prompt: `putty.exe -serial <com-port> -sercfg 9600,8,n,1,N`)*
 
 ### 1.1 Firmware upload and boot
 1. Build and flash the firmware to the target device.
@@ -39,11 +39,9 @@ Please enter one of the following commands:
 3. Verify that the blink period matches the `toggleTimerTimeout` defined in the firmware (`100 ms` by default).  
    *Expected result:* LED toggles approximately every 100 ms.
 
-
 ### 2.3 Debounce verification
 1. Press the toggle button repeatedly within 300 ms intervals.
 2. Verify that only the first press is registered and additional presses are ignored.
-
 
 ## 3. Temperature measurement
  
