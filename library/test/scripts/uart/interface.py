@@ -16,3 +16,7 @@ class IUart(ABC):
     @abstractmethod
     def close(self) -> None:
         """Close the UART connection."""
+
+    @abstractmethod
+    def reset(self) -> None:
+        """Reset the Uart Connection"""

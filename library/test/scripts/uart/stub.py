@@ -2,6 +2,7 @@
 
 from typing import List
 from .interface import IUart
+import time
 
 class UartStub(IUart):
     """UART stub simulating serial communication."""
@@ -12,6 +13,7 @@ class UartStub(IUart):
         self._responses: List[str] = []  # Holds lines to return on read
         self._toggle_state: bool = False  # Simulate LED toggle state
         self._temperature: float = 23.0  # Simulate temperature reading
+        self._port_connection: bool = True
 
         # Preload startup messages (simulate firmware boot output)
         self._responses.append("Temperature prediction training succeeded!")
@@ -32,12 +34,12 @@ class UartStub(IUart):
         self._buffer.append(cmd)
 
         # Generate fake response based on command
-        if cmd == "q":  # Toggle LED
+        if cmd == "t":  # Toggle LED
             self._toggle_state = not self._toggle_state
             msg = "Toggle timer enabled!" if self._toggle_state else "Toggle timer disabled!"
             self._responses.append(msg)
         elif cmd == "s":  # Status
-            msg = "Toggle timer is active" if self._toggle_state else "Toggle timer is inactive"
+            msg = "The toggle timer is enabled!" if self._toggle_state else "The toggle timer is disabled!"
             self._responses.append(msg)
         elif cmd == "r":  # Read temperature
             self._responses.append(f"Temperature: {self._temperature:.1f} C")
@@ -55,3 +57,11 @@ class UartStub(IUart):
         """Close the stub (no-op)."""
         self._buffer.clear()
         self._responses.clear()
+
+    def reset(self) -> None:
+        """Simulate a reset"""    
+        print("Resetting the hardware")
+        self.close()
+        self.__init__
+        time.sleep(2.0) # Boot time
+

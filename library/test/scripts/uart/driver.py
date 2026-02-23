@@ -12,7 +12,7 @@ class UartDriver(IUart):
         """Initialize the UART driver and connect to Arduino."""
         self._baudrate = baudrate
         self._timeout = timeout_ms / 1000.0  # Convert ms to seconds
-        self._serial: Serial | None = None
+        self._ser: Serial | None = None
 
         # Find COM port automatically
         com_port = self._get_com_port()
@@ -20,7 +20,7 @@ class UartDriver(IUart):
             raise RuntimeError("Arduino Uno not found on any COM port!")
 
         # Open serial connection
-        self._serial = Serial(com_port, baudrate=self._baudrate, timeout=self._timeout)
+        self._ser = Serial(com_port, baudrate=self._baudrate, timeout=self._timeout)
 
         # Wait for Arduino to start up
         time.sleep(2)
@@ -47,18 +47,26 @@ class UartDriver(IUart):
 
     def write(self, data: str) -> None:
         """Send a string over UART."""
-        if self._serial is not None:
-            self._serial.write(data.encode())
+        if self._ser is not None:
+            self._ser.write(data.encode())
 
     def read(self) -> str | None:
         """Read a single line from UART, or None if no data is available."""
-        if self._serial is None or self._serial.in_waiting == 0:
+        if self._ser is None or self._ser.in_waiting == 0:
             return None
-        line = self._serial.readline().decode("utf-8", errors="replace").strip()
+        line = self._ser.readline().decode("utf-8", errors="replace").strip()
         return line if line else None
 
     def close(self) -> None:
         """Close the UART connection."""
-        if self._serial is not None and self._serial.is_open:
-            self._serial.close()
-            self._serial = None
+        if self._ser is not None and self._ser.is_open:
+            self._ser.close()
+            self._ser = None
+
+    def reset(self) -> None:
+        """Toggle DTR to trigger hardware reset (DTR is wired to RESET on Arduino Uno)."""
+        print("Resetting the hardware") 
+        self._ser.dtr = False
+        time.sleep(0.1)
+        self._ser.dtr = True
+        time.sleep(5.0) # Boot time
